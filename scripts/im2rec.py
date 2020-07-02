@@ -508,6 +508,7 @@ if __name__ == '__main__':
                     )
                     cnt = 0
                     pre_time = time.time()
+                    print(fname_rec, fname_idx)
                     for i, item in enumerate(image_list):
                         image_encode(args, i, item, q_out)
                         if q_out.empty():
