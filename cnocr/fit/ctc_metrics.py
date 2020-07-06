@@ -88,6 +88,7 @@ class CtcMetrics(object):
         hit = 0.
         total = 0.
         batch_size = label.shape[0]
+        print(label.shape, pred.shape)
         for i in range(batch_size):
             l = self._remove_blank(label[i])
             p = []

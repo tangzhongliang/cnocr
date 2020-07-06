@@ -44,7 +44,11 @@ def fit(network, data_train, data_val, metrics, args, hp, data_names=None):
     }
     if hp.clip_gradient is not None:
         optimizer_params['clip_gradient'] = hp.clip_gradient
-
+    eval_metrics = mx.metric.CompositeEvalMetric()
+    metric1 = mx.metric.Accuracy()
+    metric2 = mx.metric.CrossEntropy()
+    for child_metric in [metric1, metric2]:
+        eval_metrics.add(child_metric)
     module.fit(
         train_data=data_train,
         eval_data=data_val,
@@ -52,6 +56,7 @@ def fit(network, data_train, data_val, metrics, args, hp, data_names=None):
         num_epoch=num_epoch,
         # use metrics.accuracy or metrics.accuracy_lcs
         eval_metric=mx.metric.np(metrics.accuracy, allow_extra_outputs=True),
+        # eval_metric=eval_metrics,
         optimizer=hp.optimizer,
         optimizer_params=optimizer_params,
         initializer=mx.init.Xavier(factor_type="in", magnitude=2.34),

@@ -1,9 +1,9 @@
-#DATA_ROOT_DIR = /data2/ocr/outer
-#REC_DATA_ROOT_DIR = /root/jinlong/data
+# DATA_ROOT_DIR = /data2/ocr/outer
+# REC_DATA_ROOT_DIR = /root/jinlong/data
 
 # relative train.txt and test.txt
 DATA_ROOT_DIR = /root/data/gen_images/chn
-# relative to ./eng/***.jpg
+# relative to labels.txt's path. eg.  ./chn/***.jpg
 DATA_ROOT_DIR2 = /root/data/gen_images
 REC_DATA_ROOT_DIR = /root/data/gen_images/chn
 
@@ -11,29 +11,29 @@ REC_DATA_ROOT_DIR = /root/data/gen_images/chn
 EMB_MODEL_TYPE = densenet-lite
 SEQ_MODEL_TYPE = gru
 MODEL_NAME = $(EMB_MODEL_TYPE)-$(SEQ_MODEL_TYPE)
-EPOCH = 49
+EPOCH = 41
 
 gen-lst:
 	python scripts/im2rec.py --list --num-label 20 --chunks 1 --train-idx-fp $(DATA_ROOT_DIR)/train.txt \
 		--test-idx-fp $(DATA_ROOT_DIR)/test.txt --prefix $(DATA_ROOT_DIR)/lst/cnocr
 
 gen-rec:
-	python scripts/im2rec.py --pack-label --color 1 --num-thread 1 --prefix $(DATA_ROOT_DIR)/lst --root $(DATA_ROOT_DIR2)
+	python scripts/im2rec.py --pack-label --color 1 --num-thread 6 --prefix $(DATA_ROOT_DIR)/lst --root $(DATA_ROOT_DIR2)
 
 ##
 ## copy rec dir from $(DATA_ROOT_DIR) to $(REC_DATA_ROOT_DIR)
 ##
 
-train:
-	nohup python scripts/cnocr_train.py --gpu 1 --emb_model_type $(EMB_MODEL_TYPE) --seq_model_type $(SEQ_MODEL_TYPE) \
-	--optimizer Adam --epoch $(EPOCH) --lr 3e-5 --load_epoch 40 \
-	--train_file $(REC_DATA_ROOT_DIR)/lst/cnocr_train --test_file $(REC_DATA_ROOT_DIR)/lst/cnocr_test \
-	>> nohup-$(MODEL_NAME).out 2>&1 &
-
 #train:
-#	python scripts/cnocr_train.py --gpu 1 --emb_model_type $(EMB_MODEL_TYPE) --seq_model_type $(SEQ_MODEL_TYPE) \
-#	--optimizer Adam --epoch $(EPOCH) --lr 3e-5 --load_epoch 39 \
-#	--train_file $(REC_DATA_ROOT_DIR)/lst/cnocr_train --test_file $(REC_DATA_ROOT_DIR)/lst/cnocr_test
+#	nohup python scripts/cnocr_train.py --gpu 1 --emb_model_type $(EMB_MODEL_TYPE) --seq_model_type $(SEQ_MODEL_TYPE) \
+#	--optimizer Adam --epoch $(EPOCH) --lr 3e-3 \
+#	--train_file $(REC_DATA_ROOT_DIR)/lst/cnocr_train --test_file $(REC_DATA_ROOT_DIR)/lst/cnocr_test \
+#	>> nohup-$(MODEL_NAME).out 2>&1 &
+
+train:
+	python scripts/cnocr_train.py --gpu 1 --emb_model_type $(EMB_MODEL_TYPE) --seq_model_type $(SEQ_MODEL_TYPE) \
+	--optimizer Adam --epoch $(EPOCH) --lr 3e-3 \
+	--train_file $(REC_DATA_ROOT_DIR)/lst/cnocr_train --test_file $(REC_DATA_ROOT_DIR)/lst/cnocr_test
 
 
 evaluate:
